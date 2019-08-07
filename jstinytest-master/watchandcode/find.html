@@ -1,0 +1,182 @@
+<script src="../simpletest.js"></script>
+<script>
+'use strict';
+
+/**
+ * OK The find method executes the callback function once for each index of the array...
+ * OK callback is invoked with three arguments: the value of the element, 
+ * OK the index of the element, 
+ * OK and the Array object being traversed.
+ * OK If such element is found, find returns the value of that element.
+ * OK ...until it finds one where callback returns a true value. If such element is found, find immediately returns the value of that element. //doesn't go past 
+ * OK Otherwise, find returns undefined. 
+ * OK callback is invoked for every index of the array from 0 to length - 1 
+ * OK and it is invoked for all indexes, not just those that have been assigned values. 
+ * OK If a thisArg parameter is provided to find, it will be used as the this value for each invocation of the callback. 
+ * OK If it is not provided, then undefined is used.
+ * OK The find method does not mutate the array on which it is called.
+ * OK The range of elements processed by find is set before the first invocation of callback. Therefore, callback will not visit the elements that are appended to the array after the call to find begins.
+ * OK If an existing, unvisited element of the array is changed by callback, its value passed to the callback will be the given value at the time find visits that element's index. 
+ * OK Elements that are deleted are still visited.
+ **/
+
+function find(originalArray, callback, optionalThis) {
+
+    var localCopyOfArray = originalArray.slice(0);
+
+    if(optionalThis) {
+		callback = callback.bind(optionalThis);
+	} else if (arguments.length < 3) {
+        callback = callback.bind(undefined);
+    }
+
+    for(var i = 0; i < localCopyOfArray.length; i++) {
+		if(callback(originalArray[i], i, originalArray)) {
+            return originalArray[i];
+        }
+	}
+
+}
+
+tests({
+
+    'It should run the callback function array.length times.': function() {
+        var numberOfTimesCallbackHasRun = 0;
+
+        find([1, 2, 3], function() {
+            numberOfTimesCallbackHasRun++;
+        });
+
+        eq(numberOfTimesCallbackHasRun, 3);
+    },
+
+    'It should pass in the ith element as the first argument to the callback function.': function() {
+        find([1], function(number) {
+            eq(number, 1)
+        });
+    },
+    
+    'It should pass in the ith position as the second argument to the callback.': function() {
+        find([1], function(number, index) {
+            eq(index, 0);
+        });
+    },
+    
+    'It should pass in the array being traversed as the third argument to the callback.': function() {
+        var testArray = [1, 2, 3];
+
+        find(testArray, function(number, index, originalArray) {
+            eq(originalArray, testArray);
+        });
+    },
+
+    'It should return a value if a match is found.': function() {
+        var returnedValue = find([1], function() {
+            return true;
+        });
+
+        eq(returnedValue === null, false);
+    },
+
+    'It should return a value that matches the search conditions.': function() {
+        var returnedValue = 0;
+
+        returnedValue = find([1, 2], function(number) {
+            return number === 2;
+        });
+
+        eq(returnedValue, 2);
+    },
+
+    'It should stop traversing the array if a value matching the search conditions is found.': function() {
+        var numberOfTimesCallbackHasRun = 0;
+
+        find([1, 2, 3], function(number) {
+            numberOfTimesCallbackHasRun++;
+            return number === 2;
+        });
+
+        eq(numberOfTimesCallbackHasRun, 2);
+    },
+
+    'It should return undefined if no match is found.': function() {
+        var returnedValue = "defined";
+
+        returnedValue = find([], function() {
+            return false;
+        });
+
+        eq(returnedValue, undefined);
+    },
+
+    'It should invoke the callback for all indexes, not just those assigned values.': function() {
+        var numberOfTimesCallbackHasRun = 0;
+
+        find([1,,3], function(number, index, array) {
+            numberOfTimesCallbackHasRun++;
+        });
+
+        eq(numberOfTimesCallbackHasRun, 3);
+    },
+
+    'It should accept an optional this object.': function() {
+        find([1], function() {
+            eq(this.description, 'I should be accessible inside the callback');
+        }, {description: 'I should be accessible inside the callback'});
+    },
+
+    'It should use undefined as the this object if none is provided.': function() {
+        find([1], function() {
+            eq(this, undefined);
+        });
+    },
+
+    'It should not mutate the array onto which it is called.': function() {
+        var shouldNotBeMutated = [1];
+
+        find(shouldNotBeMutated, function(number) {});
+
+        eq(shouldNotBeMutated.length, 1);
+        eq(shouldNotBeMutated[0], 1);
+    },
+
+    'It should not visit elements appended during execution of the callback.': function() {
+        var numberOfTimesCallbackHasRun = 0;
+
+        find([1], function(number, index, array) {
+            numberOfTimesCallbackHasRun++;
+            array.push(0);
+        });
+
+        eq(numberOfTimesCallbackHasRun, 1);
+    },
+
+    'It should pass values to the callback corresponding to the modified state of the array if the callback changes values within the array.': function() {
+        var testArray = [1, 2];
+
+        find(testArray, function(number, index, array) {
+            if(index === 0) {
+                array[1] = 3;
+            } else if(index === 1) {
+                eq(testArray[1], 3);
+            }
+        });
+    },
+
+    'It should visit elements that are deleted during execution of the callback.': function() {
+        var testArray = [1, 2];
+        var numberOfTimesCallbackHasRun = 0;
+
+        find(testArray, function(number, index, array) {
+            numberOfTimesCallbackHasRun++;
+            if(index === 0) {
+                array.pop();
+            }
+        });
+
+        eq(numberOfTimesCallbackHasRun, 2);
+    }
+
+});
+
+</script>
