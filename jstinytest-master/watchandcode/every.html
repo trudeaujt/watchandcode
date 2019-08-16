@@ -89,7 +89,7 @@ tests({
   
     'It should return false if all values in the array do not satisfy the callback.': function() {
         var resultThatShouldBeFalse = true;
-        var resultThatShouldBeFalse = every([1, 2], function(number){
+        resultThatShouldBeFalse = every([1, 2], function(number){
             return number === 1;
         });
 

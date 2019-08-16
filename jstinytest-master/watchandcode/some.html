@@ -1,0 +1,162 @@
+<script src="../simpletest.js"></script>
+<script>
+'use strict';
+
+/**
+ * OK The some() method executes the callback function once for each element present in the array 
+ * OK until it finds the one where callback returns a truthy value (a value that becomes true when converted to a Boolean). 
+ * OK If such an element is found, some() immediately returns true. 
+ * OK Otherwise, some() returns false. 
+ * callback is invoked only for indexes of the array with assigned values. 
+ * OK callback is invoked with three arguments: the value of the element, 
+ * OK the index of the element, 
+ * OK and the Array object being traversed.
+ * OK If a thisArg parameter is provided to some(), it will be used as the callback's this value. 
+ * OK Otherwise, the value undefined will be used as its this value.
+ * OK some() does not mutate the array on which it is called.
+ * OK Elements appended to the array after the call to some() begins will not be visited by callback. 
+ * OK If an existing, unvisited element of the array is changed by callback, its value passed to the visiting callback will be the value at the time that some() visits that element's index. 
+ * OK Elements that are deleted are not visited.
+ **/
+
+function some(originalArray, callback, optionalThis) {
+
+    var assignedIndexes = Object.keys(originalArray);
+
+    for(var i = 0; i < assignedIndexes.length; i++) {
+
+        var currentIndex = assignedIndexes[i];
+        var currentValue = originalArray[assignedIndexes[i]];
+
+        if(currentIndex in originalArray) {
+            var result = callback(currentValue, currentIndex, originalArray);
+        
+            if (result === true) {
+                return true;
+            }
+        }
+        
+    }
+
+    return false;
+
+}
+
+tests({
+'It should run the callback once for each element in the array.': function() {
+    var numberOfTimesCallbackHasRun = 0;
+
+    some([1, 2], function() {
+        numberOfTimesCallbackHasRun++;
+    });
+
+    eq(numberOfTimesCallbackHasRun, 2);
+},
+    
+'It should pass in the ith element as the first argument to the callback function.': function() {
+    some([1], function(number) {
+        eq(number, 1)
+    });
+},
+
+'It should pass in the ith position as the second argument to the callback.': function() {
+    some([1], function(number, index) {
+        eq(index, 0);
+    });
+},
+
+'It should pass in the array being traversed as the third argument to the callback.': function() {
+    var testArray = [1];
+
+    some(testArray, function(number, index, originalArray) {
+        eq(originalArray, testArray);
+    });
+},
+
+'It should stop traversing the array when a true value is returned from the callback.': function() {
+    var numberOfTimesCallbackHasRun = 0;
+
+    some([1, 2], function(number) {
+        numberOfTimesCallbackHasRun++;
+        return number === 1;
+    });
+
+    eq(numberOfTimesCallbackHasRun, 1);
+},
+
+'It should return false if no values in the array satisfy the callback.': function() {
+    var resultThatShouldBeFalse = true;
+    resultThatShouldBeFalse = some([1, 2], function(number){
+        return number === 3;
+    });
+
+    eq(resultThatShouldBeFalse, false);
+},
+
+'It should not run the callback on indexes that are not assigned values.': function() {
+    some([0, /**/, 2], function(number, index) {
+        eq(number, index);
+    });
+},
+
+'It should accept an optional this object.': function() {
+    some([], function() {
+        eq(this.description, 'I should be accessible inside the callback');
+    }, {description: 'I should be accessible inside the callback'});
+},
+
+'It should use undefined as the this object if none is provided.': function() {
+    some([], function() {
+        eq(this, undefined);
+    });
+},
+
+'It should not mutate the array onto which it is called.': function() {
+    var shouldNotBeMutated = [1];
+
+    some(shouldNotBeMutated, function(number) {});
+
+    eq(shouldNotBeMutated.length, 1);
+    eq(shouldNotBeMutated[0], 1);
+},
+
+'It should not visit elements appended during execution of the callback.': function() {
+    var numberOfTimesCallbackHasRun = 0;
+
+    some([1], function(number, index, array) {
+        numberOfTimesCallbackHasRun++;
+        array.push(0);
+    });
+
+    eq(numberOfTimesCallbackHasRun, 1);
+},
+
+'It should pass values to the callback corresponding to the modified state of the array if the callback changes values within the array.': function() {
+    var testArray = [1, 2];
+
+    some(testArray, function(number, index, array) {
+        if(index === 0) {
+            array[1] = 3;
+        } else if(index === 1) {
+            eq(number, 3);
+        }
+    });
+},
+
+'It should not visit elements that are deleted during execution of the callback.': function() {
+    var testArray = [1, 2];
+    var numberOfTimesCallbackHasRun = 0;
+
+    some(testArray, function(number, index, array) {
+        if(numberOfTimesCallbackHasRun === 0) {
+            array.pop();
+        }
+        numberOfTimesCallbackHasRun++;
+    });
+
+    eq(numberOfTimesCallbackHasRun, 1);
+},
+
+});
+
+</script>
