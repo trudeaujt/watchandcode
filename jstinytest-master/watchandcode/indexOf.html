@@ -1,0 +1,98 @@
+<script src="../simpletest.js"></script>
+<script>
+'use strict';
+
+/**
+ * arr.indexOf(searchElement[, fromIndex])
+ * 
+ * OK Return value: The first index of the element in the array; 
+ * OK -1 if not found.
+ * OK fromIndex [Optional]: The index to start the search at. 
+ * OK If the index is greater than or equal to the array's length, -1 is returned, <<which means the array will not be searched. >>
+ * OK If the provided index value is a <<negative number, it is taken as the offset from the end of the array. >>
+ * OK Note: if the provided index is <<negative, the array is still searched from front to back. >>
+ * OK If the provided index is <<0, then the whole array will be searched. >>
+ * OK [handled by omission case] Default: 0 (entire array is searched).
+ * 
+ * OK indexOf() compares searchElement to elements of the Array using strict equality (the same method used by the === or triple-equals operator).
+ **/
+
+function indexOf(originalArray, searchElement, fromIndex) {
+    var index = 0;
+    var defaultReturnValue = -1;
+
+    if(arguments.length > 2) {
+        if(fromIndex > 0) {
+            index = fromIndex;
+        } else if(fromIndex < 0) {
+            index = originalArray.length + fromIndex;
+        }
+    }
+
+    while(index < originalArray.length) {
+        if(originalArray[index] === searchElement) {
+            return index;
+        }
+        index++;
+    }
+
+    return defaultReturnValue;
+}
+
+tests({
+    'It should return an index of the search element.': function() {
+        var testArray = [1];
+        var result = indexOf(testArray, 1);
+        eq(result, 0);
+    },
+
+    'It should return the first index found if there are multiple copies of the search element.': function() {
+        var testArray = [1, 1];
+        var result = indexOf(testArray, 1);
+        eq(result, 0);
+    },
+
+    'It should return -1 if the search element is not found.': function() {
+        var testArray = [1];
+        var result = indexOf(testArray, 0);
+        eq(result, -1);
+    },
+
+    'It should accept a fromIndex and start searching from that index.': function() {
+        var testArray = [1, 1];
+        var result = indexOf(testArray, 1, 1);
+        eq(result, 1);
+    },
+
+    'It should not search the array if fromIndex is greater than the length of the array.': function() {
+        var testArray = [1];
+        var result = indexOf(testArray, 1, 1);
+        eq(result, -1);
+    },
+
+    'It should handle a negative fromIndex value as an offset from the end of the array.': function() {
+        var testArray = [1, 1, 1];
+        var result = indexOf(testArray, 1, -2);
+        eq(result, 1);
+    },
+
+    'It should still search the array from front-to-back when provided a negative fromIndex.': function() {
+        var testArray = [1, 1];
+        var result = indexOf(testArray, 1, -2);
+        eq(result, 0);
+    },
+
+    'It should search the whole array if fromIndex is zero.': function() {
+        var testArray = [1, 2];
+        var result = indexOf(testArray, 2, 0);
+        eq(result, 1);
+    },
+
+    'It should compare using strict equality.': function() {
+        var testArray = ["a"];
+        var result = indexOf(testArray, new String("a"));
+        eq(result, -1);
+    }
+});
+
+</script>
