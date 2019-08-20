@@ -1,0 +1,167 @@
+<script src="../simpletest.js"></script>
+<script>
+'use strict';
+
+/**
+ * Usage: console.log(array1.concat(array2));
+ * Syntax: var new_array = old_array.concat([value1[, value2[, ...[, valueN]]]])
+ * Parameters:
+ * OK     valueN Optional
+ *          Arrays and/or values to concatenate into a new array.
+ * Return value:
+ * OK     A new Array instance.
+ * 
+ * OK The concat method creates a new array 
+ * OK consisting of the elements in the [first array], 
+ * OK followed in order by, for each argument, the elements of that argument (if the argument is an array) 
+ * OK or the argument itself (if the argument is not an array). 
+ * OK It does not recurse into nested array arguments.
+ * OK The concat method does not alter [the first arary] 
+ * OK or any of the arrays provided as arguments 
+ * OK but instead returns a <shallow copy> that contains copies of the same elements combined from the original arrays. 
+ * OK If all valueN parameters are omitted, concat returns a shallow copy of the existing array on which it is called. 
+ * OK Elements of the original arrays are copied into the new array as follows: Object references (and not the actual object): concat copies object references into the new array. Both the original and new array refer to the same object. That is, if a referenced object is modified, the changes are visible to both the new and original arrays. 
+ * OK [shallow copy tests this] This includes elements of array arguments that are also arrays.
+ * OK Data types such as strings, numbers and booleans (not String, Number, and Boolean objects): concat copies the values of strings and numbers into the new array.
+ * OK [should not alter arrays passed as objects] Note: Concatenating array(s)/value(s) will leave the originals untouched. 
+ * OK Furthermore, any operation on the new array (except operations on elements which are object references) will have no effect on the original arrays, and vice versa.
+ **/
+
+function concat(originalArray) {
+
+    var arrayCopy = originalArray.slice(0);
+
+    for(var i = 1; i < arguments.length; i++) {
+        if(Array.isArray(arguments[i])) {
+            arguments[i].forEach(function(element) {
+                arrayCopy.push(element);
+            });
+        } else {
+            arrayCopy.push(arguments[i]);
+        }
+    }
+
+    return arrayCopy;
+}
+
+tests({
+    'It should return an array.': function() {
+        var returnedArray = concat([]);
+
+        eq(Array.isArray(returnedArray), true);
+    },
+
+    'It should return a new array.': function() {
+        var testArray = [];
+        var returnedArray = concat(testArray);
+
+        eq(testArray === returnedArray, false);
+    },
+
+    'It should return a new array consisting of the values of the first array.': function() {
+        var testArray = [1];
+        var returnedArray = concat(testArray);
+
+        eq(testArray[0], returnedArray[0]);
+    },
+
+    'It should append elements of sequential arguments to the original array.': function() {
+        var testArray = [1];
+        var toAppend = [2];
+
+        var returnedArray = concat(testArray, toAppend);
+
+        eq(toAppend[0], returnedArray[1]);
+    },
+
+    'It should accept valueN parameters.': function() {
+        var returnedArray = concat([0], [1], [2], [3], [4]);
+
+        eq(returnedArray.length, 5);
+    },
+
+    'It should append the values contained within arrays that are passed in as parameters.': function() {
+        var testArray = [1];
+        var toAppend = [2, 3];
+
+        var returnedArray = concat(testArray, toAppend);
+
+        eq(returnedArray.length, 3);
+    },
+
+    'It should not recurse into nested array arguments.': function() {
+        var testArray = [1];
+        var toAppend = [2, [3, 4]];
+
+        var returnedArray = concat(testArray, toAppend);
+
+        eq(returnedArray.length, 3);
+    },
+
+    'It should not alter any arrays passed as arguments.': function() {
+        var testArray = [1];
+        var toAppend = [2];
+
+        var returnedArray = concat(testArray, toAppend);
+
+        eq(testArray[0] === 1 && toAppend[0] === 2, true);
+    },
+
+    'It should return a shallow copy that contains copies of the same elements combined from the original arrays.': function() {
+        var testArray = [[1]];
+        var toAppend = [2, 3];
+
+        var returnedArray = concat(testArray, toAppend);
+
+        testArray[0].push(4);
+        eq(returnedArray[0][1], 4);
+        eq(returnedArray.length, 3);
+    },
+
+    'It should return a shallow copy of the first parameter if no others are provided.': function() {
+        var testArray = [[1]];
+
+        var returnedArray = concat(testArray);
+
+        testArray[0].push(2);
+        eq(returnedArray[0][1], 2);
+    },
+
+    'It should copy objects by reference.': function() {
+        var testArray = [1];
+        var testObject = {name: 'Unnamed'};
+
+        var returnedArray = concat(testArray, testObject);
+
+        testObject.name = 'Gordon';
+        eq(returnedArray[1].name, 'Gordon');
+    },
+
+    'It should copy primitives by value.': function() {
+        var testArray = [1];
+        var testBoolean = true;
+        var testString = "abc";
+        var testNumber = 123;
+
+        var returnedArray = concat(testArray, testBoolean, testString, testNumber);
+
+        testBoolean = false;
+        testString = "def";
+        testNumber = 456;
+
+        eq(returnedArray[1], true);
+        eq(returnedArray[2], "abc");
+        eq(returnedArray[3], 123);
+    },
+
+    'It should not propogate changes to the returned array backwards to the original arrays, except for object references': function() {
+        var testArray = [1];
+
+        var returnedArray = concat(testArray);
+
+        returnedArray[0] = 2;
+        eq(testArray, 1);
+    }
+});
+
+</script>
