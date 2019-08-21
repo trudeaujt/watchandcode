@@ -1,0 +1,110 @@
+<script src="../simpletest.js"></script>
+<script>
+
+/**
+ * [Return]: 
+ * OK The includes() method determines whether an array includes a certain value among its entries, returning true 
+ * OK or false as appropriate.
+ * [Parameters]: 
+ * OK The search starts at fromIndex for positive values of fromIndex, 
+ * OK or at array.length + fromIndex for negative values of fromIndex.
+ * OK If fromIndex is negative, and the computed index is less or equal than -1 times array.length, the entire array will be searched.
+ * OK If fromIndex is greater than 
+ * OK or equal to the length of the array, false is returned. The array will not be searched.
+ * 
+ * OK When comparing strings and characters [JS has no char primitive], includes() is case-sensitive.
+ * OK Values of zero are all considered to be equal regardless of sign (that is, -0 is considered to be equal to both 0 and +0)
+ * OK false is not considered to be the same as 0.
+ * It does not require this value to be an Array object, so it can be applied to other kinds of objects (e.g. array-like objects).
+ **/
+
+function includes(originalArray, searchElement, fromIndex) {
+    var index = 0;
+
+    if(arguments.length > 2) {
+        if(fromIndex > 0) {
+            index = fromIndex;
+        } else if(fromIndex < 0) {
+            index = originalArray.length + fromIndex;
+        }
+    }
+
+    while(index < originalArray.length) {
+        if(originalArray[index] === searchElement) {
+            return true;
+        }
+        index++;
+    }
+
+    return false;
+}
+
+tests({
+    'It should return true if the array includes the value.': function() {
+        var testArray = [1];
+        var result = includes(testArray, 1);
+        eq(result, true);
+    },
+
+    'It should return false if the array does not contain the value.': function() {
+        var testArray = [0];
+        var result = includes(testArray, 1);
+        eq(result, false);
+    },
+
+    'It should start searching from a specific index.': function() {
+        var testArray = [1, 0];
+        var result = includes(testArray, 1, 1);
+        eq(result, false);
+    },
+
+    'It should treat a negative specified index as an offset from the end of the array.': function() {
+        var testArray = [1, 0];
+        var result = includes(testArray, 1, -1);
+        eq(result, false);
+    },
+
+    'It should search the entire array if the calculated offset is less than zero.': function() {
+        var testArray = [1];
+        var result = includes(testArray, 1, -2);
+        eq(result, true);
+    },
+
+    'It should not search the array if fromIndex is equal to the length of the array.': function() {
+        var testArray = [1];
+        var result = includes(testArray, 1, 1);
+        eq(result, false);
+    },
+
+    'It should not search the array if fromIndex is greater than the length of the array.': function() {
+        var testArray = [1];
+        var result = includes(testArray, 1, 2);
+        eq(result, false);
+    },
+
+    'It should be case-sensitive when comparing strings.': function() {
+        var testArray = ["abc"];
+        var result = includes(testArray, "ABC");
+        eq(result, false);
+    },
+
+    'It should consider all zeroes equal regardless of sign.': function() {
+        var testArray = [-0];
+        var result = includes(testArray, +0);
+        eq(result, true);
+    },
+
+    'It should not consider false to be the same as 0.': function() {
+        var testArray = [false];
+        var result = includes(testArray, 0);
+        eq(result, false);
+    },
+
+    'It should handle other object types with length properties, not just arrays.': function() {
+        var testObject = {0: 'foo', 5: 'bar', length: 6};
+        var result = includes(testObject, 'foo');
+        eq(result, true);
+    }
+});
+ 
+</script>
