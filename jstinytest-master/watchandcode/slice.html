@@ -1,0 +1,180 @@
+<script src="../simpletest.js"></script>
+<script>
+'use strict';
+
+/**
+ * [Return]:
+ * OK A new array 
+ * OK containing the extracted elements.
+ * 
+ * [Parameters]:
+ *      [begin (Optional)]: 
+ * OK Zero-based index at which to begin extraction.
+ * OK If begin is undefined, slice begins from index 0.
+ * OK A negative index can be used, indicating an offset from the end of the sequence.
+ * OK If begin is greater than the length of the sequence, an empty array is returned.
+ *      [end (Optional)]: 
+ * OK Zero-based index before which to end extraction. 
+ * OK A negative index can be used, indicating an offset from the end of the sequence. 
+ * OK If end is omitted, slice extracts through the end of the sequence (arr.length).
+ * OK If end is greater than the length of the sequence, slice extracts through to the end of the sequence (arr.length).
+ * 
+ * [Description]:
+ * OK The slice() method returns a shallow copy of a portion of an array 
+ * OK as a new array object 
+ * OK The original array will not be modified.
+ * OK Slice copies object references into the new array. 
+ * OK For strings, numbers and booleans (not String, Number and Boolean objects), slice copies the values into the new array.
+ * OK If a new element is added to either array, the other array is not affected.
+ **/
+
+function slice(originalArray, begin, end) {
+    var argLength = arguments.length;
+    var length = originalArray.length;
+    var extractedArray = [];
+
+    // no indexes specified, slice it all
+    if(argLength < 2) { 
+        begin = 0;
+        end = length;
+    // start index specified, slice from there on
+    } else if(argLength < 3) { 
+        if(begin < 0) {
+            begin = originalArray.length + begin;
+        }
+        end = length;
+    // start and end specified, slice that portion
+    } else if(argLength >= 3) { 
+        if(begin < 0) {
+            begin = originalArray.length + begin;
+        }
+        if(end < 0) {
+            end = originalArray.length + end;
+        } else {
+            end--; // stop slicing BEFORE reaching the specified end
+        }
+    }
+
+    for(var i = begin; i < end; i++) {
+        extractedArray.push(originalArray[i]);
+    }
+
+    return extractedArray;
+}
+
+tests({
+    'It should return an array.': function() {
+        var result = slice([]);
+        eq(Array.isArray(result), true);
+    },
+
+    'It should return an array that is a subset of the original array.': function() {
+        var testArray = [1];
+        var result = slice(testArray);
+        eq(testArray[0], result[0]);
+    },
+
+    'It should accept an index from which to begin extraction.': function() {
+        var testArray = [1, 2];
+        var result = slice(testArray, 1);
+        eq(result.length, 1);
+        eq(result[0], 2);
+    },
+
+    'It should default to extracting from 0 if no beginning index is specified.': function() {
+        var testArray = [1, 2, 3];
+        var result = slice(testArray);
+        eq(result.length, 3);
+    },
+
+    'It should treat a negative beginning index as an offset from the end of the array.': function() {
+        var testArray = [1, 2];
+        var result = slice(testArray, -1);
+        eq(result.length, 1);
+        eq(result[0], 2);
+    },
+
+    'It should return an empty array if the beginning index is greater than the length of the array.': function() {
+        var testArray = [1];
+        var result = slice(testArray, 1);
+        eq(result.length, 0);
+    },
+
+    'It should accept an index before which to end extraction.': function() {
+        var testArray = [1, 2];
+        var result = slice(testArray, 0, 2);
+        eq(result.length, 1);
+        eq(result[0], 1);
+    },
+
+    'It should treat a negative ending index as an offset from the end of the array.': function() {
+        var testArray = [1, 2];
+        var result = slice(testArray, 0, -1);
+        eq(result.length, 1);
+        eq(result[0], 1);
+    },
+
+    'It should default to extracting until array.length if no ending index is specified.': function() {
+        var testArray = [1, 2, 3];
+        var result = slice(testArray, 0);
+        eq(result.length, 3);
+    },
+
+    'It should extract until array.length if the ending index is greater than array.length.': function() {
+        var testArray = [1, 2, 3];
+        var result = slice(testArray, 0, 4);
+        eq(result.length, 3);
+    },
+
+    'It should return a shallow copy of the array.': function() {
+        var testArray = [1];
+        var result = slice(testArray);
+        testArray.push(2);
+        eq(result.length, 1);
+    },
+
+    'It should return a new array object.': function() {
+        var testArray = [1];
+        var result = slice(testArray);
+        eq(testArray === result, false);
+    },
+
+    'It should not modify the original array.': function() {
+        var testArray = [1];
+        var result = slice(testArray);
+        eq(testArray.length, 1);
+        eq(testArray[0], 1);
+    },
+
+    'It should extract objects by reference into the sliced array.': function() {
+        var testObject = [{name: 'Unnamed'}];
+        var result = slice(testObject);
+        testObject[0].name = 'Gordon';
+        eq(result[0].name, 'Gordon');
+    },
+
+    'It should extract primitives by value into the sliced array.': function() {
+        var testArray = [true, 'abc', 123];
+        var result = slice(testArray);
+        testArray = [false, 'def', 456];
+        eq(result[0], true);
+        eq(result[1], 'abc');
+        eq(result[2], 123);
+    },
+
+    'It should not propagate changes from the original array to the extracted array.': function() {
+        var testArray = [1];
+        var result = slice(testArray);
+        testArray.pop();
+        eq(result.length, 1);
+    },
+
+    'It should not propagate changes from the extracted array to the original array.': function() {
+        var testArray = [1];
+        var result = slice(testArray);
+        result.pop();
+        eq(testArray.length, 1);
+    }
+});
+
+</script>
