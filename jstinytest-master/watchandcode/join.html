@@ -1,0 +1,84 @@
+<script src="../simpletest.js"></script>
+<script>
+'use strict';
+
+/**
+ * [Return]:
+ * OK A string 
+ * OK with all array elements joined. 
+ * OK If arr.length is 0, the empty string is returned.
+ * [Parameters]:
+ *      [separator (Optional)]: 
+ * OK Specifies a string to separate each pair of adjacent elements of the array. 
+ * OK The separator is converted to a string if necessary. 
+ * OK If omitted, the array elements are separated with a comma (","). 
+ * OK If separator is an empty string, all elements are joined without any characters inbetween them.
+ * 
+ * OK If an element is undefined or null, it is converted to the empty string.
+ **/
+
+function join(originalArray, seperator) {
+    var returnString = "";
+    var length = originalArray.length;
+
+    if(arguments.length === 1) {
+        seperator = ",";
+    }
+
+    for(var i = 0; i < length; i++) {
+        if(originalArray[i] == null) {
+            returnString += "";
+        } else {
+            returnString += originalArray[i];
+        }
+        if(i < length - 1) {
+            returnString += seperator;
+        }
+    }
+
+    return returnString;
+}
+
+tests({
+    'It should return a string.': function() {
+        var result = join([""]);
+        eq(typeof result, 'string');
+    },
+
+    'It should return a string with all array elements joined.': function() {
+        var result = join(["a"]);
+        eq(result, "a");
+    },
+
+    'It should return an empty string if array.length is 0.': function() {
+        var result = join([]);
+        eq(result, "");
+    },
+
+    'It should accept a seperator string that specifies what seperates elements.': function() {
+        var result = join(["a", "b"], ",");
+        eq(result, "a,b");
+    },
+
+    'It should convert the seperator to a string, if necessary.': function() {
+        var result = join(["a", "b"], true);
+        eq(result, "atrueb");
+    },
+
+    'It should use a "," to seperate elements if none is specified.': function() {
+        var result = join(["a", "b"]);
+        eq(result, "a,b");
+    },
+
+    "It should use nothing inbetween elements if the separator is an empty string.": function() {
+        var result = join(["a", "b"], "");
+        eq(result, "ab");
+    },
+
+    "It should convert undefined or null elements to an empty string.": function() {
+        var result = join(["a",,"b"]);
+        eq(result, "a,,b");
+    },
+});
+
+</script>
