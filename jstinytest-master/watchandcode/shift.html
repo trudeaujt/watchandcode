@@ -3,25 +3,29 @@
 'use strict';
 
 /**
- * OK The pop() method removes the last element from an array.
- * OK This method changes the length of the array.
+ * The shift() method removes the first element from an array.
+ * This method changes the length of the array.
  * 
  * [Return]:
- * OK The removed element from the array; 
- * OK undefined if the array is empty.
+ * The removed element from the array; 
+ * undefined if the array is empty.
  * 
- * OK this method [works on] objects resembling arrays. 
+ * this method [works on] objects resembling arrays.
  **/
 
-function pop(originalArray) {
+function shift(originalArray) {
     var length = originalArray.length;
 
     if(length === 0) {
         return undefined;
     }
 
-    var elementToRemove = originalArray[length - 1];
+    var elementToRemove = originalArray[0];
 
+    for(var i = 0; i < length - 1; i++) {
+        originalArray[i] = originalArray[i + 1];
+    }
+    
     if(!Array.isArray(originalArray)) {
         delete originalArray[length - 1];
     }
@@ -32,36 +36,36 @@ function pop(originalArray) {
 }
 
 tests({
-    'It should remove the last element of the array.': function() {
+    'It should remove the first element of the array.': function() {
         var testArray = [1];
-        pop(testArray);
+        shift(testArray);
         eq(testArray[0], undefined);
     },
 
     'It should change the length of the array.': function() {
         var testArray = [1, 2];
-        pop(testArray);
+        shift(testArray);
         eq(testArray.length, 1);
     },
 
     'It should return the removed element from the array.': function() {
-        var testArray = [1];
-        var result = pop(testArray);
+        var testArray = [1, 2];
+        var result = shift(testArray);
         eq(result, 1);
     },
 
     'It should return undefined when called on an empty array.': function() {
         var testArray = [];
-        var result = pop(testArray);
+        var result = shift(testArray);
         eq(result, undefined);
     },
 
     'It should work on objects resembling arrays.': function() {
         var testObject = {0: "a", 1: "b", length: 2};
-        var result = pop(testObject);
-        eq(result, "b");
+        var result = shift(testObject);
+        eq(result, "a");
         eq(testObject.length, 1);
-        eq(testObject[0], "a");
+        eq(testObject[0], "b");
         eq(testObject[1], undefined);
     }
 });
