@@ -1,0 +1,130 @@
+<script src="../simpletest.js"></script>
+<script>
+'use strict';
+
+/**
+ * [Return]:
+ * OK The new length property of the object upon which the method was called.
+ * [Parameters]:
+ * OK elementN: The elements to add to the end of the array.
+ * 
+ * WILL NOT IMPLEMENT This method can be used with call() 
+ * WILL NOT IMPLEMENT or apply() on objects resembling arrays. 
+ * ****[working with apply is NOT a requirement of push.
+MDN's push needs to use apply to meet all the requirements/functionality of push.]
+ * 
+ * OK The push method relies on a length property to determine where to start inserting the given values. If the length property cannot be converted into a number, the index used is 0. 
+ * OK This includes the possibility of length being nonexistent, in which case length will also be created.
+ * OK Although strings are native, Array-like objects, they are not suitable in applications of this method, as strings are immutable.  
+ * OK Merging two arrays
+ **/
+
+function push(originalArray) {
+    //does not run on immutable variables, so check for that
+    var isObject = originalArray instanceof Object;
+
+    //array-like objects don't autoincrement so we need to take care of that ourselves
+    var shouldIncrementLength = false;
+
+    if(isObject) {
+        if(isNaN(originalArray.length)) {
+            originalArray.length = 0;   
+        }
+
+        if(Array.isArray(originalArray) === false) {
+            shouldIncrementLength = true;
+        }
+
+        for(var i = 1; i < arguments.length; i++) {
+            var element = arguments[i];
+
+            if(Array.isArray(element)) {
+                for(var j = 0; j < element.length; j++) {
+                    util.append(originalArray, element[j], shouldIncrementLength);
+                }
+            } 
+            
+            else {
+                util.append(originalArray, element, shouldIncrementLength);
+            }
+        }
+    }
+
+    return originalArray.length;
+}
+
+var util = {
+    append: function(array, element, shouldIncrementLength) {
+        array[array.length] = element;
+        if(shouldIncrementLength) {
+            array.length++;
+        }
+    }
+};
+
+tests({
+    'It should return the length property of the array pushed to.': function() {
+        var result = push([]);
+        eq(result, 0);
+    },
+
+    'It should accept an element and add it to the end of the array.': function() {
+        var testArray = [1]
+        push(testArray, 2);
+        eq(testArray[1], 2);
+    },
+
+    'It should accept N elements and add them to the array.': function() {
+        var testArray = [1];
+        push(testArray, 2, 3, 4, 5);
+        eq(testArray.join(""), "12345");
+        eq(testArray.length, 5)
+    },
+
+    'It should work on objects resembling arrays.': function() {
+        var obj = {
+            length: 0,
+        };
+        push(obj, {});
+        eq(obj.length, 1);
+    },
+
+    'It should start adding from index 0 if the length property cannot be converted into a number.': function() {
+        var obj = {
+            length: "a",
+        };
+        push(obj, {});
+        eq(obj.length, 1);
+    },
+
+    'It should create a length property if it does not exist.': function() {
+        var obj = {};
+        push(obj, {});
+        eq(obj.length, 1);
+    },
+
+    'It should not work with strings.': function() {
+        var string = "";
+        push(string, "a");
+        eq(string, "");
+    },
+
+    'It should merge arrays.': function() {
+        var testArray = [1];
+        var toBeMerged = [2, 3];
+        push(testArray, toBeMerged);
+        eq(testArray.join(""), "123");
+        eq(testArray.length, 3);
+    }, 
+
+    'It should merge multiple arrays.': function() {
+        var testArray = [1];
+        var toBeMerged = [2, 3];
+        var toBeMergedAgain = [4, 5]
+        push(testArray, toBeMerged, toBeMergedAgain);
+        eq(testArray.join(""), "12345");
+        eq(testArray.length, 5);
+    }, 
+});
+
+</script>
