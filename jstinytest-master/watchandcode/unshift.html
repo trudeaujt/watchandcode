@@ -1,0 +1,71 @@
+<script src="../simpletest.js"></script>
+<script>
+'use strict';
+
+/**
+ * [Return]: 
+ * OK The new length property
+ * 
+ * OK returns the new length of the array.
+ * OK The unshift() method adds one 
+ * OK or more elements to the beginning of an array and 
+ * OK this method [works on] objects resembling arrays.
+ **/
+
+function unShift(originalArray) {
+    var originalLength = originalArray.length;
+    var shiftRightOffset = arguments.length - 1;
+    var newLength = originalLength + shiftRightOffset;
+
+    //Shift values to the right, opening up space for the new values
+    for(var i = newLength - 1; i > originalLength - 1; i--) {
+        originalArray[i] = originalArray[i - shiftRightOffset];
+    }
+
+    for(var i = 0; i < shiftRightOffset; i++) {
+        originalArray[i] = arguments[i + 1];
+    }
+
+    if(!Array.isArray(originalArray)) {
+        originalArray.length = newLength;
+    }
+
+    return originalArray.length;
+}
+
+tests({
+    'It should return the length of the array.': function() {
+        var testArray = [1];
+        var result = unShift(testArray);
+        eq(result, 1);
+    },
+
+    'It should add an element to the beginning of the array.': function() {
+        var testArray = [1];
+        unShift(testArray, 2);
+        eq(testArray.join(""), "21");
+    },
+
+    'It should update the length of the array.': function() {
+        var testArray = [1];
+        var result = unShift(testArray, 2);
+        eq(testArray.length, 2);
+    },
+
+    'It should add multiple elements to the beginning of the array in the order they were passed in the function call.': function() {
+        var testArray = [1];
+        var result = unShift(testArray, 2, 3);
+        eq(testArray.join(""), "231");
+    },
+
+    'It should work on objects resembling arrays.': function() {
+        var testObject = {0: "a", length: 1};
+        var result = unShift(testObject, "b");
+        eq(result, 2);
+        eq(testObject.length, 2);
+        eq(testObject[0], "b");
+        eq(testObject[1], "a");
+    }
+});
+
+</script>
