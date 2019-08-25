@@ -1,0 +1,136 @@
+<script src="../simpletest.js"></script>
+<script>
+'use strict';
+
+/**
+ * OK It should return an array.
+ * 
+ * [Return]
+ * OK The modified array.
+ * 
+ * [Parameters]
+ * OK Value to fill an array.
+ * 
+ * Optional
+ * OK Start index, 
+ * OK defaults to 0.
+ * 
+ * Optional
+ * OK End index, 
+ * OK defaults to this.length.
+ * 
+ * OK If start is negative, it is treated as length+start where length is the length of the array. 
+ * OK If end is negative, it is treated as length+end.
+ * 
+ * OK fill is intentionally generic, it does not require that its this value be an Array object.
+ * [ALREADY FULFILLED] fill is a mutable method, it will change this object itself, and return it, 
+ * OK not just return a copy of it.
+ * OK When fill gets passed an object, it will copy the reference and fill the array with references to that object.
+ **/
+
+function fill(originalArray, value, start, end) {
+    var arrayLength = originalArray.length;
+    var argsLength = arguments.length;
+
+    if(argsLength < 3) {
+        start = 0;
+    }
+
+    if (argsLength < 4) {
+        end = arrayLength;
+    }
+
+    if(start < 0) {
+        start = arrayLength + start;
+    }
+
+    if(end < 0) {
+        end = arrayLength + end;
+    }
+
+    for(var i = start; i < end; i++) {
+        originalArray[i] = value;
+    }
+
+    return originalArray;
+}
+
+tests({
+    'It should return an array.': function() {
+        var result = fill([]);
+        eq(Array.isArray(result), true);
+    },
+
+    'It should return the array it was passed.': function() {
+        var testArray = [1];
+        var result = fill(testArray);
+        eq(result, testArray);
+    },
+
+    'It should accept a value and fill the array with that value.': function() {
+        var testArray = [1];
+        fill(testArray, 2);
+        eq(testArray[0], 2);
+    },
+
+    'It should accept a starting index and fill the array from that position onwards.': function() {
+        var testArray = [1, 2];
+        fill(testArray, 3, 1);
+        eq(testArray.join(""), "13");
+    },
+
+    'It should accept an ending index and stop filling the array one before that index.': function() {
+        var testArray = [1, 2, 3];
+        fill(testArray, 4, 1, 2);
+        eq(testArray.join(""), "143");
+    },
+
+    'The starting index should default to zero.': function() {
+        var testArray = [1, 2];
+        fill(testArray, 3);
+        eq(testArray.join(""), "33");
+    },
+
+    'The ending index should default to the length of the array.': function() {
+        var testArray = [1, 2, 3];
+        fill(testArray, 4, 1);
+        eq(testArray.join(""), "144");
+    },
+
+    'If the starting index is negative, it should be treated as an offset from the length of the array.': function() {
+        var testArray = [1, 2];
+        fill(testArray, 3, -1);
+        eq(testArray.join(""), "13");
+    },
+
+    'If the ending index is negative, it should be treated as an offset from the length of the array.': function() {
+        var testArray = [1, 2];
+        fill(testArray, 3, 0, -1);
+        eq(testArray.join(""), "32");
+    },
+
+    'It should work on objects resembling arrays.': function() {
+        var testObject = {0: "a", 1: "b", 2: "c", length: 1};
+        var result = fill(testObject, "d", 1, 2);
+        eq(result, testObject);
+        eq(testObject[0], "a");
+        eq(testObject[1], "d");
+        eq(testObject[2], "c");
+    },
+
+    'It should not just return a copy of the array it was passed, but the array itself.': function() {
+        var testArray = [1, 2];
+        var result = fill(testArray, 3);
+        eq(result === testArray, true);
+    },
+
+    'It should fill the array with object references when passed an object.': function() {
+        var testObject = {name: "Unnamed"};
+        var testArray = [1];
+        fill(testArray, testObject);
+        testObject.name = "Gordon";
+        eq(testObject.name, testArray[0].name);
+    }
+});
+
+</script>
