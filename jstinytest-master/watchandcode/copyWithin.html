@@ -1,0 +1,125 @@
+<script src="../simpletest.js"></script>
+<script>
+'use strict';
+
+/**
+ * The copyWithin() method shallow copies part of an array to another location in the same array and returns it 
+ * without modifying its length.
+ * 
+ * [Return]
+ * OK An array.
+ * OK The modified array.
+ * 
+ * [Parameters]
+ * OK target: Zero-based index at which to copy the sequence to. 
+ * OK If negative, target will be counted from the end.
+ * OK If target is at 
+ * OK or greater than arr.length, nothing will be copied. 
+ * OK If target is positioned after start, the copied sequence will be trimmed to fit arr.length.
+ * 
+ * OK start (Optional): Zero-based index at which to start copying elements from. 
+ * OK If negative, start will be counted from the end.
+ * OK If start is omitted, copyWithin will copy from index 0. 
+ * 
+ * end (Optional):
+ * Zero-based index at which to end copying elements from. 
+ * copyWithin copies up to but not including end. 
+ * If negative, end will be counted from the end.
+ * If end is omitted, copyWithin will copy until the last index (default to arr.length).
+ * 
+ * The copyWithin function is intentionally generic, it does not require that its this value be an Array object.
+ * The copyWithin method is a mutable method. 
+ * It does not alter the length of this, 
+ * but it will change its content and create new properties, if necessary (such as length if none is there?).
+ **/
+
+function copyWithin(originalArray, target, start, end) {
+    var arrayLength = originalArray.length;
+    var argsLength = arguments.length;
+
+    if(argsLength < 2)  { target = 0; }
+    if(argsLength < 3)  { start = 0; }
+    if(argsLength < 4)  { end = arrayLength; }
+
+    if(target < 0)      { target = arrayLength + target;}
+    if(start < 0)       { start = arrayLength + start; }
+    if(end < 0)         { end = arrayLength + end; }
+
+    var slice = originalArray.slice(start, end);
+    var sliceLength = slice.length;
+    //Invalid cases. Return without doing anything
+    if(sliceLength === 0)       { return originalArray; }
+    if(target >= arrayLength)   { return originalArray; }
+
+    for(var arrayIndex = target, sliceIndex = 0; 
+        arrayIndex < arrayLength && sliceIndex < sliceLength; 
+        arrayIndex++, sliceIndex++) 
+    {
+        originalArray[arrayIndex] = slice[sliceIndex];
+    }
+
+    return originalArray;
+}
+
+tests({
+    'It should return an array.': function() {
+        var result = copyWithin([]);
+        eq(Array.isArray(result), true);
+    },
+
+    'It should return the array it was passed.': function() {
+        var testArray = [1];
+        var result = copyWithin(testArray);
+        eq(result, testArray);
+    },
+
+    'It should copy the sequence to the specified target index.': function() {
+        var testArray = [1, 2, 3];
+        copyWithin(testArray, 1);
+        eq(testArray.join(), "1,1,2");
+    },
+
+    'If the target index is negative, it should be treated as an offset from the length of the array. ': function() {
+        var testArray = [1, 2, 3, 4, 5];
+        copyWithin(testArray, -2);
+        eq(testArray.join(), "1,2,3,1,2");
+    },
+
+    'If the target is the same as the length of the array, nothing should be copied.': function() {
+        var testArray = [1, 2, 3];
+        copyWithin(testArray, 3);
+        eq(testArray.join(), "1,2,3");
+    },
+
+    'If the target is greater than the length of the array, nothing should be copied.': function() {
+        var testArray = [1, 2, 3];
+        copyWithin(testArray, 4);
+        eq(testArray.join(), "1,2,3");
+    },
+
+    'It should trim the copied sequence to fit within the length of the array.': function() {
+        var testArray = [1, 2, 3];
+        copyWithin(testArray, 1);
+        eq(testArray.length, 3);
+    },
+
+    'It should accept an index from which to begin copying elements.': function() {
+        var testArray = [1, 2, 3, 4, 5];
+        copyWithin(testArray, 0, 3);
+        eq(testArray.join(), "4,5,3,4,5");
+    },
+
+    'If the starting index is negative, it should be treated as an offset from the length of the array. ': function() {
+        var testArray = [1, 2, 3, 4, 5];
+        copyWithin(testArray, 0, -3);
+        eq(testArray.join(), "3,4,5,4,5");
+    },
+
+    'If the starting index is omitted, it should start from index 0.': function() {
+        var testArray = [1, 2, 3];
+        copyWithin(testArray, 2);
+        eq(testArray.join(), "1,2,1");
+    },
+});
+
+</script>
