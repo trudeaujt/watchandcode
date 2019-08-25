@@ -1,0 +1,70 @@
+<script src="../simpletest.js"></script>
+<script>
+'use strict';
+
+/**
+ * [Return]
+ * OK It should return an array.
+ * OK The reversed array.
+ * 
+ * OK The reverse method transposes the elements of the calling array object in place, mutating the array, 
+ * OK and returning a reference to the array.
+ * reverse is intentionally generic; this method can be called or applied to objects resembling arrays. 
+ **/
+
+function reverse(originalArray) {
+    var length = originalArray.length;
+    var temp;
+    
+    for(var i = 0; i < length / 2; i++) {
+        temp = originalArray[(length - 1) - i];
+        originalArray[(length - 1) - i] = originalArray[i];
+        originalArray[i] = temp;
+    }
+
+    return originalArray;
+}
+
+tests({
+    'It should return an array.': function() {
+        var result = reverse([]);
+        eq(Array.isArray(result), true);
+    },
+
+    'It should reverse the array.': function() {
+        var tempArray = [1, 2, 3];
+        reverse(tempArray);
+        eq(tempArray.join(""), "321");
+    },
+
+    'It should return the reversed array.': function() {
+        var tempArray = [1, 2, 3];
+        var result = reverse(tempArray);
+        eq(result.join(""), "321");
+    },
+
+    'It should mutate the array.': function() {
+        var tempArray = [1, 2, 3];
+        var arrayCopy = tempArray.slice(0);
+        reverse(tempArray);
+        eq(tempArray === arrayCopy, false);
+    },
+
+    'It should return a reference to the array.': function() {
+        var tempArray = [1];
+        var result = reverse(tempArray);
+        tempArray[0] = 2;
+        eq(result[0], 2);
+    },
+
+    'It should work on objects resembling arrays.': function() {
+        var testObject = {0: "a", 1: "b", 2: "c", length: 3};
+        var result = reverse(testObject);
+        eq(result, testObject);
+        eq(testObject[0], "c");
+        eq(testObject[1], "b");
+        eq(testObject[2], "a");
+    },
+});
+
+</script>

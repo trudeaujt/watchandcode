@@ -110,7 +110,7 @@ tests({
     },
 
     'It should work on objects resembling arrays.': function() {
-        var testObject = {0: "a", 1: "b", 2: "c", length: 1};
+        var testObject = {0: "a", 1: "b", 2: "c", length: 3};
         var result = fill(testObject, "d", 1, 2);
         eq(result, testObject);
         eq(testObject[0], "a");
