@@ -22,14 +22,13 @@
  * OK If start is omitted, copyWithin will copy from index 0. 
  * 
  * end (Optional):
- * Zero-based index at which to end copying elements from. 
- * copyWithin copies up to but not including end. 
- * If negative, end will be counted from the end.
- * If end is omitted, copyWithin will copy until the last index (default to arr.length).
+ * OK Zero-based index at which to end copying elements from. copyWithin copies up to but not including end. 
+ * OK If negative, end will be counted from the end.
+ * OK If end is omitted, copyWithin will copy until the last index (default to arr.length).
  * 
- * The copyWithin function is intentionally generic, it does not require that its this value be an Array object.
- * The copyWithin method is a mutable method. 
- * It does not alter the length of this, 
+ * OK The copyWithin function is intentionally generic, it does not require that its this value be an Array object.
+ * OK The copyWithin method is a mutable method. 
+ * OK It does not alter the length of this, 
  * but it will change its content and create new properties, if necessary (such as length if none is there?).
  **/
 
@@ -45,7 +44,10 @@ function copyWithin(originalArray, target, start, end) {
     if(start < 0)       { start = arrayLength + start; }
     if(end < 0)         { end = arrayLength + end; }
 
-    var slice = originalArray.slice(start, end);
+    var slice = [];
+    for(var i = start; i < end; i++) {
+        slice.push(originalArray[i]);
+    }
     var sliceLength = slice.length;
     //Invalid cases. Return without doing anything
     if(sliceLength === 0)       { return originalArray; }
@@ -109,7 +111,7 @@ tests({
         eq(testArray.join(), "4,5,3,4,5");
     },
 
-    'If the starting index is negative, it should be treated as an offset from the length of the array. ': function() {
+    'If the starting index is negative, it should be treated as an offset from the length of the array.': function() {
         var testArray = [1, 2, 3, 4, 5];
         copyWithin(testArray, 0, -3);
         eq(testArray.join(), "3,4,5,4,5");
@@ -120,6 +122,46 @@ tests({
         copyWithin(testArray, 2);
         eq(testArray.join(), "1,2,1");
     },
+
+    'It should accept an index one before which to stop copying elements.': function() {
+        var testArray = [1, 2, 3, 4, 5];
+        copyWithin(testArray, 0, 2, 3);
+        eq(testArray.join(), "3,2,3,4,5");
+    },
+
+    'If the ending index is negative, it should be treated as an offset from the length of the array.': function() {
+        var testArray = [1, 2, 3, 4, 5];
+        copyWithin(testArray, 0, 2, -2);
+        eq(testArray.join(), "3,2,3,4,5");
+    },
+
+    'If the ending index is omitted, it should copy until the last index.': function() {
+        var testArray = [1, 2, 3, 4, 5];
+        copyWithin(testArray, 0, 2);
+        eq(testArray.join(), "3,4,5,4,5");
+    },
+
+    'It should work on objects resembling arrays.': function() { 
+        var testObject = {0: "a", 1: "b", 2: "c", length: 3};
+        var result = copyWithin(testObject, 0, 1, 2);
+        eq(result, testObject);
+        eq(testObject[0], "b");
+        eq(testObject[1], "b");
+        eq(testObject[2], "c");
+    },
+
+    'It should mutate the array.': function() {
+        var testArray = [1, 2, 3];
+        var arrayValueCopy = testArray.slice(0);
+        copyWithin(testArray, 1);
+        eq((testArray === arrayValueCopy), false);
+    },
+
+    'It should not alter the length of `this`.': function() {
+        var testArray = [1, 2, 3];
+        copyWithin(testArray, 1);
+        eq(testArray.length, 3);
+    }
 });
 
 </script>
